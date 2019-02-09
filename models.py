@@ -11,3 +11,7 @@ class MailgunEvent(models.Model):
     timestamp = models.CharField(max_length=30)
     json = models.TextField(null=True, blank=True)
 
+    def __unicode__(self):
+        # TODO: output timestamp in a human readable format
+        return '{} event with id {}'.format(self.event_type, self.event_id)
+
