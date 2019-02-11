@@ -9,7 +9,7 @@ from datetime import datetime
 from .models import MailgunEvent
 
 class MailgunEventAdmin(admin.ModelAdmin):
-    list_display = ('event_type', 'display_timestamp', 'event_id')
+    list_display = ('id', 'event_type', 'display_timestamp', 'event_id')
     list_filter = ('event_type',)
 
     def display_timestamp(self, obj):
