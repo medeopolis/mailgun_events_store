@@ -18,15 +18,32 @@ login_auth = ('api', settings.MAILGUN_EVENTS_AUTH_KEY)
 
 def record_events(json_values):
     for mail_record in json_values:
-        # print mail_record
+        # FIXME: time limit to this ~48 hours; mailgun don't guarantee an event_id is ALWAYS unique
+        # when doing comparisons, Note the database is storing unix time
         if not MailgunEvent.objects.filter(event_id = mail_record['id']):
             # TODO: error handling: what if this fails?
+            # Record guaranteed data
             new_event_object = MailgunEvent(
                 event_type = mail_record['event'],
                 event_id = mail_record['id'],
                 timestamp = mail_record['timestamp'],
                 json = mail_record
                 )
+            # Pre save so if the next part goes wrong we still get the json.
+            new_event_object.save()
+            # Now record variable fields; re use new_event_object
+            for sect in mail_record:
+                try:
+                  # In my testing on Guest models this never failed and silently failed
+                  # (by succeeding) by simply not writing out the data
+                  if sect == 'id':
+                    setattr(new_event_object, 'event_id', mail_record[sect])
+                  elif not mail_record[sect]:
+                    pass
+                  else:
+                    setattr(new_event_object, sect.replace('-', '_'), mail_record[sect])
+                except AttributeError as ae:
+                  setattr(new_event_object, sect.replace('-', '_'), '') # set to empty text
             new_event_object.save()
 
 class Command(BaseCommand):
