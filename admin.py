@@ -9,8 +9,9 @@ from datetime import datetime
 from .models import MailgunEvent
 
 class MailgunEventAdmin(admin.ModelAdmin):
-    list_display = ('id', 'event_type', 'display_timestamp', 'event_id')
-    list_filter = ('event_type',)
+    list_display = ('id', 'event_type', 'display_timestamp', 'event_id', 'recipient')
+    list_filter = ('event_type', 'method', 'severity', 'recipient_domain')
+    search_fields = ('event_type', 'envelope', 'recipient', 'ip')
 
     def display_timestamp(self, obj):
         return datetime.fromtimestamp(float(obj.timestamp))
